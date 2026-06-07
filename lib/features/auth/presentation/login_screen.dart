@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:goldiss_chat/Core/app_theme.dart';
-import '../widgets/goldiss_logo.dart';
-import '../widgets/primary_button.dart';
+import 'widgets/goldiss_logo.dart';
+import 'widgets/primary_button.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

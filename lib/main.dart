@@ -14,18 +14,6 @@ Future<void> main() async {
     url: dotenv.get('API_URL'),
     anonKey: dotenv.get('ANON_KEY'),
   );
-
-  try {
-    final data = await Supabase.instance.client
-        .from('_test_connection_')
-        .select()
-        .limit(1);
-    print('Connecté : $data');
-  } catch (e) {
-    print(
-      'Erreur attendue : $e',
-    ); // Devrait indiquer "relation _test_connection_ does not exist"
-  }
   runApp(const MyApp());
 }
 
