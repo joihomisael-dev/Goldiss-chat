@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:goldiss_chat/Core/app_theme.dart';
+import 'package:goldiss_chat/features/auth/presentation/provider/auth_provider.dart';
 import '../widgets/goldiss_logo.dart';
 import '../widgets/primary_button.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen>
+class _RegisterScreenState extends ConsumerState<RegisterScreen>
     with SingleTickerProviderStateMixin {
   final _usernameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
@@ -46,6 +48,17 @@ class _RegisterScreenState extends State<RegisterScreen>
 
   @override
   Widget build(BuildContext context) {
+    final auth = ref.read(authProvider.notifier);
+    final state = ref.watch(authProvider);
+    // Effet de bord : navigation
+    ref.listen(authProvider, (prev, next) {
+      if (next.user != null) {
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil('/home', (route) => false);
+      }
+    });
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -180,9 +193,24 @@ class _RegisterScreenState extends State<RegisterScreen>
                             ),
                           ),
                           const SizedBox(height: 28),
+                          // Affichage conditionnel de l'erreur (seulement si non null)
+                          if (state.errorMessage != null && !state.isLoading)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: Text(
+                                state.errorMessage!,
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
                           PrimaryButton(
                             label: 'Create Account',
-                            onPressed: () {},
+                            isloading: state.isLoading,
+                            onPressed: state.isLoading
+                                ? null
+                                : () => auth.signUp(
+                                    _emailCtrl.text,
+                                    _passwordCtrl.text,
+                                  ),
                           ),
                           const SizedBox(height: 20),
                           // Sign in link

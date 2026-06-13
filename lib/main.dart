@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:goldiss_chat/Core/app_theme.dart';
 import 'package:goldiss_chat/features/auth/presentation/screens/login_screen.dart';
+import 'package:goldiss_chat/features/auth/presentation/screens/main_shell.dart';
 import 'package:goldiss_chat/features/auth/presentation/screens/onboarding_screen.dart';
 import 'package:goldiss_chat/features/auth/presentation/screens/register_screen.dart';
 import 'package:goldiss_chat/features/auth/presentation/screens/splash_screen.dart';
@@ -14,7 +16,8 @@ Future<void> main() async {
     url: dotenv.get('API_URL'),
     anonKey: dotenv.get('ANON_KEY'),
   );
-  runApp(const MyApp());
+
+  runApp(ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -28,11 +31,21 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.theme,
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
-      routes: {
-        '/': (_) => const SplashScreen(),
-        '/onboarding': (_) => const OnboardingScreen(),
-        '/login': (_) => const LoginScreen(),
-        '/register': (_) => const RegisterScreen(),
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/':
+            return MaterialPageRoute(builder: (_) => const SplashScreen());
+          case '/onboarding':
+            return MaterialPageRoute(builder: (_) => const OnboardingScreen());
+          case '/login':
+            return MaterialPageRoute(builder: (_) => const LoginScreen());
+          case '/register':
+            return MaterialPageRoute(builder: (_) => const RegisterScreen());
+          case '/home':
+            return MaterialPageRoute(builder: (_) => const MainShell());
+          default:
+            return MaterialPageRoute(builder: (_) => const SplashScreen());
+        }
       },
     );
   }

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:goldiss_chat/features/auth/data/auth_service.dart';
-import 'package:goldiss_chat/features/auth/presentation/auth_state.dart';
+import 'package:goldiss_chat/features/auth/presentation/provider/auth_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 
 final authServiceProvider = Provider<AuthService>((ref) {
@@ -15,7 +15,7 @@ class AuthNotifier extends Notifier<AuthState> {
     _authService = ref.read(authServiceProvider);
     //ecoute en temps réel
     _authService.authStateChanges.listen((user) {
-      state = state.copywith(user: user, errorMessage: null);
+      state = state.copyWith(user: user, errorMessage: null);
     });
 
     final curruntUser = _authService.currentUser;
@@ -23,33 +23,35 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 
   Future<void> signIn(String email, String password) async {
-    state = state.copywith(isLoading: true, errorMessage: null);
+    state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       await _authService.signIn(email, password);
     } catch (e) {
-      state = state.copywith(errorMessage: e.toString());
+      state = state.copyWith(errorMessage: e.toString());
     } finally {
-      state = state.copywith(isLoading: false);
+      state = state.copyWith(isLoading: false);
     }
   }
 
   Future<void> signUp(String email, String password) async {
-    state = state.copywith(isLoading: true, errorMessage: null);
+    state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       await _authService.signUp(email, password);
     } catch (e) {
-      state = state.copywith(errorMessage: e.toString());
+      state = state.copyWith(errorMessage: e.toString());
     } finally {
-      state = state.copywith(isLoading: false);
+      state = state.copyWith(isLoading: false);
     }
   }
 
   Future<void> signOut() async {
-    state = state.copywith(isLoading: true, errorMessage: null);
+    state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       await _authService.signOut();
     } catch (e) {
-      state = state.copywith(errorMessage: e.toString());
+      state = state.copyWith(errorMessage: e.toString());
+    } finally {
+      state = state.copyWith(isLoading: false, clearUser: true);
     }
   }
 }

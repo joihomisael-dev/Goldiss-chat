@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:goldiss_chat/features/auth/presentation/provider/auth_provider.dart';
 import 'dart:math' as math;
-import 'package:goldiss_chat/Core/app_theme.dart';
 import '../widgets/goldiss_logo.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class _SplashScreenState extends ConsumerState<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _logoScale;
   late Animation<double> _logoOpacity;
   late Animation<double> _textOpacity;
   late Animation<double> _bottomOpacity;
+  late final authNotifier = ref.read(authProvider);
 
   @override
   void initState() {
@@ -53,9 +55,14 @@ class _SplashScreenState extends State<SplashScreen>
 
     _ctrl.forward().then((_) {
       Future.delayed(const Duration(milliseconds: 800), () {
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/onboarding');
-        }
+        final authstate = ref.read(authProvider).user;
+
+        if (!mounted) return; // Vérifier que le widget est toujours monté
+        var routeName = authstate != null ? '/home' : '/onboarding';
+
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil(routeName, (route) => false);
       });
     });
   }

@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:goldiss_chat/Core/app_theme.dart';
-import 'widgets/goldiss_logo.dart';
-import 'widgets/primary_button.dart';
+import 'package:goldiss_chat/features/auth/presentation/provider/auth_provider.dart';
+import '../widgets/goldiss_logo.dart';
+import '../widgets/primary_button.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
+class _LoginScreenState extends ConsumerState<LoginScreen>
     with SingleTickerProviderStateMixin {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
@@ -44,6 +46,17 @@ class _LoginScreenState extends State<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
+    final auth = ref.read(authProvider.notifier);
+    final state = ref.watch(authProvider);
+    // Effet de bord : navigation
+    ref.listen(authProvider, (prev, next) {
+      if (next.user != null) {
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil('/home', (route) => false);
+      }
+    });
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -166,7 +179,28 @@ class _LoginScreenState extends State<LoginScreen>
                             ),
                           ),
                           const SizedBox(height: 28),
-                          PrimaryButton(label: 'Sign In', onPressed: () {}),
+                          if (state.errorMessage != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: Text(
+                                state.errorMessage!,
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+
+                          // Affichage conditionnel de l'erreur (seulement si non null)
+                          PrimaryButton(
+                            label: 'Sign In',
+                            isloading: state.isLoading,
+                            onPressed: state.isLoading
+                                ? null
+                                : () {
+                                    auth.signIn(
+                                      _emailCtrl.text,
+                                      _passwordCtrl.text,
+                                    );
+                                  },
+                          ),
                         ],
                       ),
                     ),
